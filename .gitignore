@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Node/npm (just in case you ever add a linter or prettier)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+.pnpm-store/
+
+# IDEs / editors
+.vscode/
+.idea/
+*.sw?
+
+# Environment & misc
+.env*
+*.local
