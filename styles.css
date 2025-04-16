@@ -1,0 +1,49 @@
+:root {
+  --font-sans: system-ui, sans-serif;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+
+  /* neutral surfaces */
+  --surface-1: #ffffff;
+  --surface-1: #f6f6f7;
+
+  /* accent */
+  --accent: #6366f1; /* indigo-500 */
+
+  /* text */
+  --text-1: #111827;
+  --text-2: #374151;
+
+  --radius: 0.5rem;
+  --timing: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* darkmode overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-1: #111827;
+    --surface-2: #1f2937;
+    --text-1: #f9fafb;
+    --text-2: #d1d5db;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--surface-1);
+  color: var(--text-1);
+  line-height: 1.5;
+}
+
+/* baseline classes you can extend later */
+.hidden {
+  display: none !important;
+}
