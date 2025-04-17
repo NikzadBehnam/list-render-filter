@@ -87,3 +87,39 @@ body {
 .hidden {
   display: none !important;
 }
+
+/* === Theme toggle styles === */
+.toggle {
+  border: 0;
+  background: transparent;
+  padding: var(--space-2);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-standard);
+  border-radius: var(--radius-md);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--accent-500);
+  outline-offset: 2px;
+}
+
+.toggle:is(:hover, :focus-visible) {
+  transform: rotate(20deg);
+}
+
+.toggle svg {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.toggle.is-dark svg {
+  /* rotate 180° so the moon icon aligns naturally */
+  transform: rotate(180deg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .theme-dark .toggle svg {
+    filter: invert(1);
+  }
+}
