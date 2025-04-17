@@ -24,3 +24,4 @@ package-lock.json
 # Environment & misc
 .env*
 *.local
+NOTES.md

@@ -6,22 +6,85 @@
     <title>List Rendring & Filtring Demo</title>
   </head>
   <body>
-    <header>
-      <h1>List Rendring & Filtring Demo</h1>
-      <!-- theme toggle goes here -->
+    <!-- ========= Header ========= -->
+    <header class="app-header">
+      <h1 class="app-title">List Rendring & Filtring Demo</h1>
+
+      <!-- Theme toggle button -->
+      <button
+        id="theme-toggle"
+        class="toggle"
+        aria-label="Toggle light / dark theme"
+        title="Toggle theme"
+      >
+        <svg
+          id="icon-sun"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          aria-hidden="true"
+        >
+          <path d="M12 18a6 6 0 100-12 6 6 0 000 12z" fill="currentColor" />
+          <g stroke="currentColor" stroke-linecap="round">
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </g>
+        </svg>
+      </button>
     </header>
 
-    <section id="filters">
-      <!-- filter controls injected later -->
+    <!-- ========= Filters ========= -->
+    <section id="filters" class="filters" aria-label="Filter controls">
+      <!-- Date range -->
+      <div class="filter-group">
+        <label for="date-from">From</label>
+        <input type="date" id="date-from" name="date-from" />
+
+        <label for="date-to">To</label>
+        <input type="date" id="date-to" name="date-to" />
+      </div>
+
+      <!-- Keywords -->
+      <div class="filter-group">
+        <label for="keyword">Keyword</label>
+        <input
+          type="search"
+          name="keyword"
+          id="keyword"
+          placeholder="Search..."
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Category (populated by JS) -->
+      <div class="filter-group">
+        <label for="category">Category</label>
+        <select name="Category" id="category">
+          <option value="">All</option>
+        </select>
+      </div>
     </section>
 
-    <section id="list-container">
-      <!-- dynamic  list rows will render here -->
+    <!-- ========= List container ========= -->
+    <section
+      id="list-container"
+      class="list-container"
+      aria-label="Results list"
+      tabindex="0"
+    >
+      <p class="empty-state">Loading..</p>
     </section>
 
-    <!-- modal root node -->
-    <div id="modal-root"></div>
+    <!-- ========= Modal placeholder ========= -->
+    <div id="modal-root" class="hidden" aria-live="polite"></div>
 
-    <script src="app.js"></script>
+    <script src="./app.js"></script>
   </body>
 </html>
