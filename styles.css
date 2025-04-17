@@ -1,34 +1,75 @@
+/*========================================= 
+Design tokes - Global CSS variables
+----------------------------------
+Naming patter: --{category}-{scale}
+----------------------------------*/
+
+/* ..........Light-theme defaults .......... */
+
 :root {
-  --font-sans: system-ui, sans-serif;
+  /* Typography */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Spacing scale (rem) */
+  --space-0: 0;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2rem;
 
-  /* neutral surfaces */
-  --surface-1: #ffffff;
-  --surface-1: #f6f6f7;
+  /* Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
 
-  /* accent */
-  --accent: #6366f1; /* indigo-500 */
+  /* Z-index layers */
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-toast: 20;
+  --z-modal-overlay: 30;
+  --z-modal: 40;
 
-  /* text */
-  --text-1: #111827;
-  --text-2: #374151;
+  /* Surface & text (light) */
+  --surface-0: #ffffff; /* page background */
+  --surface-1: #f6f6f7; /* cards, list rows */
+  --surface-2: #e5e7eb; /* headers, inputs */
 
-  --radius: 0.5rem;
-  --timing: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --text-1: #111827; /* primary */
+  --text-2: #374151; /* secondary */
+
+  /* Accent (same for both themes) */
+  --accent-500: #6366f1; /* indogo 500 */
+  --accent-600: #4f46e5; /* indogo 600 */
+
+  /* Animation timing */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 250ms;
 }
 
-/* darkmode overrides */
+/* ..........Dark-theme overrides .......... */
 @media (prefers-color-scheme: dark) {
   :root {
-    --surface-1: #111827;
-    --surface-2: #1f2937;
+    --surface-0: #111827;
+    --surface-1: #1f2937;
+    --surface-2: #374151;
     --text-1: #f9fafb;
     --text-2: #d1d5db;
   }
 }
 
+/* Manual theme toggle support */
+.theme-light {
+  /* explicit light override */
+  --surface-0: #ffffff;
+  --surface-1: #f6f6f7;
+  --surface-2: #e5e7eb;
+  --text-1: #111827;
+  --text-2: #374151;
+}
+
+/* .......... Reset & base styles .......... */
 *,
 *::before,
 *::after {
@@ -38,9 +79,8 @@
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background: var(--surface-1);
+  background: var(--surface-0);
   color: var(--text-1);
-  line-height: 1.5;
 }
 
 /* baseline classes you can extend later */
