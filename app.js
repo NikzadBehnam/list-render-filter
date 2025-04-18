@@ -5,7 +5,7 @@ const iconSun = document.getElementById("icon-sun");
 
 /* Return 'light' | 'dark' from storage or system */
 function getPreferredTheme() {
-  const stored = localStorage.getItem("STOREGE_KEY");
+  const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
 
   return window.matchMedia("(prefers-color-scheme: dark)").matches

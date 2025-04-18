@@ -76,11 +76,63 @@ Naming patter: --{category}-{scale}
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
+  padding: 0;
+}
+
+body {
   font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
   background: var(--surface-0);
   color: var(--text-1);
+  -webkit-font-smoothing: antialiased; /* nicer on macOS */
+}
+
+/* Headings inherit colour but bump weight/size */
+h1,
+h2,
+h3,
+h4 {
+  color: var(--text-1);
+  line-height: 1.25;
+  font-weight: 600;
+  margin: 0 0 var(--space-3);
+}
+
+/* Links & buttons share accent + focus ring */
+a,
+button {
+  color: var(--accent-500);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard),
+    background-color var(--dur-fast) var(--ease-standard);
+}
+
+a:hover,
+a:focus-visible,
+button:hover,
+button:focus-visible {
+  color: var(--accent-600);
+  outline: 2px solid var(--accent-500);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
+  font-size: 1rem;
+  border: none;
+  background: transparent;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
 }
 
 /* baseline classes you can extend later */
@@ -91,6 +143,7 @@ body {
 /* === Theme toggle styles === */
 .toggle {
   border: 0;
+  outline: 0;
   background: transparent;
   padding: var(--space-2);
   cursor: pointer;
@@ -108,7 +161,6 @@ body {
 }
 
 .toggle svg {
-  display: block;
   width: 1.25rem;
   height: 1.25rem;
 }
@@ -122,4 +174,34 @@ body {
   .theme-dark .toggle svg {
     filter: invert(1);
   }
+}
+
+/* ===== Results list ===== */
+.list-container {
+  height: calc(100vh - 14rem); /* leaves room for header & filters */
+  overflow-y: auto;
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+  scroll-behavior: smooth;
+}
+
+.list-container:focus-visible {
+  outline: 2px solid var(--accent-500);
+  outline-offset: -2px; /* inside the padding */
+}
+
+.empty-state {
+  margin: 0 auto;
+  padding: var(--space-4);
+  color: var(--text-2);
+}
+
+/* ===== Global transition helper ===== */
+.interactive,
+button,
+a,
+input,
+select {
+  transition: all var(--dur-fast) var(--ease-standard);
 }
