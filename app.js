@@ -129,3 +129,64 @@ async function fetchData() {
     throw err; // let caller show toast / fallback UI
   }
 }
+
+/* =========================================================
+   UI layer — list rendering
+   ========================================================= */
+
+const listContainer = document.getElementById("list-container");
+let ALL_ITEMS = []; // keeps master dataset for filters / modal
+
+/** Format ISO to e.g. “Apr 18 2025” (uses user locale) */
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/** Build one <li> row */
+function rowTemplate({ id, name, created, species }) {
+  return `
+       <li class="list-row interactive" data-id="${id}">
+         <span class="cell name" aria-label="Character name">${name}</span>
+         <span class="cell date">${fmtDate(created)}</span>
+         <span class="cell species">${species}</span>
+         <button class="btn-more" data-id="${id}"
+           aria-label="More info about ${name}">
+           More info
+         </button>
+       </li>`;
+}
+
+/** Render (or re‑render) the list */
+function renderList(items) {
+  if (!items.length) {
+    listContainer.innerHTML = '<p class="empty-state">No results&nbsp;😢</p>';
+    return;
+  }
+
+  const html = `<ul class="list">${items.map(rowTemplate).join("")}</ul>`;
+  listContainer.innerHTML = html;
+}
+
+/** Delegated click → upcoming modal */
+listContainer.addEventListener("click", (e) => {
+  const btn = e.target.closest(".btn-more");
+  if (!btn) return;
+  const id = Number(btn.dataset.id);
+  const item = ALL_ITEMS.find((c) => c.id === id);
+  // if (item) openModal(item);
+});
+
+/* ---------- Bootstrap ---------- */
+(async () => {
+  try {
+    ALL_ITEMS = await fetchData();
+    renderList(ALL_ITEMS);
+    console.info("✅ Initial list rendered");
+  } catch {
+    listContainer.innerHTML = '<p class="empty-state">Failed to load data.</p>';
+  }
+})();
