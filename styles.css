@@ -244,3 +244,69 @@ select {
 .btn-more:focus-visible {
   background: var(--accent-600);
 }
+
+/* =========================================================
+   Modal & overlay
+   ========================================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(99, 102, 241, 0.15); /* accent tint */
+  /* background: color-mix(in srgb, var(--accent-500) 20%, transparent); */
+  backdrop-filter: blur(2px);
+  z-index: var(--z-modal-overlay);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: min(90vw, 36rem);
+  max-height: 80vh;
+  overflow: auto;
+  background: var(--surface-0);
+  color: var(--text-1);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  z-index: var(--z-modal);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.modal-json {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.modal-close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  font-size: 1.5rem;
+  line-height: 1;
+  background: transparent;
+  color: var(--text-2);
+}
+
+.modal-close:hover,
+.modal-close:focus-visible {
+  color: var(--accent-600);
+}
+
+/* ---------- Visible state (added via JS) ---------- */
+#modal-root.is-visible .modal,
+#modal-root.is-visible .modal-overlay {
+  opacity: 1;
+}
+
+#modal-root.is-visible .modal {
+  transform: translate(-50%, -50%) scale(1);
+}

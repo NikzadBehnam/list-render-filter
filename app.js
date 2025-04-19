@@ -177,7 +177,7 @@ listContainer.addEventListener("click", (e) => {
   if (!btn) return;
   const id = Number(btn.dataset.id);
   const item = ALL_ITEMS.find((c) => c.id === id);
-  // if (item) openModal(item);
+  if (item) openModal(item);
 });
 
 /* ---------- Bootstrap ---------- */
@@ -190,3 +190,88 @@ listContainer.addEventListener("click", (e) => {
     listContainer.innerHTML = '<p class="empty-state">Failed to load data.</p>';
   }
 })();
+
+/* =========================================================
+   Modal component — show full JSON payload
+   ========================================================= */
+
+const modalRoot = document.getElementById("modal-root");
+let previouslyFocused = null;
+
+/** Open the modal with a prettified JSON view */
+function openModal(item) {
+  previouslyFocused = document.activeElement;
+
+  // Build markup once per call (dialog + overlay)
+  modalRoot.innerHTML = `
+       <div class="modal-overlay" tabindex="-1"></div>
+       <div class="modal" role="dialog" aria-modal="true" aria-label="Character details">
+         <button class="modal-close" aria-label="Close dialog">&times;</button>
+         <pre class="modal-json">${JSON.stringify(item, null, 2)}</pre>
+       </div>`;
+
+  modalRoot.classList.remove("hidden");
+  requestAnimationFrame(() => modalRoot.classList.add("is-visible"));
+
+  trapFocus();
+}
+
+/** Close + cleanup */
+function closeModal() {
+  modalRoot.classList.remove("is-visible");
+  modalRoot.addEventListener(
+    "transitionend",
+    () => {
+      modalRoot.classList.add("hidden");
+      modalRoot.innerHTML = "";
+      if (previouslyFocused) previouslyFocused.focus();
+    },
+    { once: true }
+  );
+  releaseFocus();
+}
+
+/* ---------- Event wiring ---------- */
+//   • overlay click
+//   • close‑button click
+//   • Esc key
+modalRoot.addEventListener("click", (e) => {
+  if (
+    e.target.classList.contains("modal-overlay") ||
+    e.target.classList.contains("modal-close")
+  ) {
+    closeModal();
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !modalRoot.classList.contains("hidden")) {
+    closeModal();
+  }
+});
+
+/* ---------- Focus trapping ---------- */
+function trapFocus() {
+  const focusable = modalRoot.querySelectorAll(
+    'button, [href], textarea, input, select, [tabindex]:not([tabindex="-1"])'
+  );
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+
+  function loop(e) {
+    if (e.key !== "Tab") return;
+    if (e.shiftKey ? e.target === first : e.target === last) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    }
+  }
+  modalRoot.addEventListener("keydown", loop);
+  first.focus();
+  modalRoot._loop = loop; // store for removal
+}
+
+function releaseFocus() {
+  modalRoot.removeEventListener("keydown", modalRoot._loop || (() => {}));
+  modalRoot._loop = null;
+}
