@@ -183,6 +183,7 @@ listContainer.addEventListener("click", (e) => {
   try {
     ALL_ITEMS = await fetchData();
     renderList(ALL_ITEMS);
+    populationCategories(ALL_ITEMS);
   } catch {
     listContainer.innerHTML = '<p class="empty-state">Failed to load data.</p>';
   }
@@ -283,4 +284,23 @@ function loopFocus(e) {
     ? focusables[focusables.length - 1]
     : focusables[0]
   ).focus();
+}
+
+/* =============================
+   Filters — UI population only 
+   ============================= */
+
+const categorySelect = document.getElementById("category");
+const dateFromInput = document.getElementById("date-from");
+const dateToInput = document.getElementById("date-to");
+const keywordInput = document.getElementById("keyword");
+
+function populationCategories(items) {
+  const unique = [
+    ...new Set(items.map((c) => c.species).filter(Boolean)),
+  ].sort();
+
+  categorySelect.innerHTML =
+    '<option value="">All</option>' +
+    unique.map((sp) => `<option value="${sp}">${sp}</option>`).join("");
 }

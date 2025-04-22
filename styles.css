@@ -254,7 +254,7 @@ select {
   inset: 0;
   background: rgba(99, 102, 241, 0.15); /* accent tint */
   /* background: color-mix(in srgb, var(--accent-500) 20%, transparent); */
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(1px);
   z-index: var(--z-modal-overlay);
   opacity: 0;
   transition: opacity var(--dur-fast) var(--ease-standard);
@@ -324,4 +324,46 @@ select {
   height: 0;
   overflow: hidden;
   position: fixed; /* avoid affecting layout */
+}
+
+/* =========================================================
+   Filter controls
+   ========================================================= */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface-1);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 10rem;
+}
+
+.filters label {
+  font-size: 0.75rem;
+  color: var(--text-2);
+}
+
+.filters input,
+.filters select {
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--surface-2);
+  background: var(--surface-0);
+  color: var(--text-1);
+}
+
+.filters input:focus-visible,
+.filters select:focus-visible {
+  outline: 2px solid var(--accent-500);
+  outline-offset: 0;
 }
