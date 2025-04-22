@@ -7,7 +7,6 @@ const iconSun = document.getElementById("icon-sun");
 function getPreferredTheme() {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
-
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
@@ -42,14 +41,14 @@ btnToggle.addEventListener("keydown", (e) => {
   }
 });
 
-/* =========================================================
+/* =====================================
    Data layer — Rick & Morty characters
-   ========================================================= */
+   ===================================== */
 
-const API_URL = "https://rickandmortyapi.com/api/character";
+const API_URL = "https://rickandmortyapi.com/api/character"; //end point
 const CACHE_KEY = "rm-characters-cache";
 const CACHE_TTL = 1000 * 60 * 60 * 4; // 4 h in ms
-const USE_CACHE = true;
+const USE_CACHE = false;
 
 /**
  * Get cached payload if it exists and is fresh.
@@ -92,36 +91,34 @@ async function fetchData() {
   // 2 ) Pull fresh data (handles pagination)
   try {
     let url = API_URL;
+    let i = 0;
     const acc = [];
 
-    while (url) {
+    while (i < 30) {
       const res = await fetch(url);
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const json = await res.json();
+
+      //  Data normalization
       const page = json.results.map((c) => ({
         id: c.id,
         name: c.name,
         species: c.species,
-        /**
-         * Normalise timestamp:  API has `created`; if
-         * your chosen endpoint ever lacks it, fall back
-         * to a pseudo‑date within the past year.
-         */
         created:
           c.created ||
           new Date(
             Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
           ).toISOString(),
+        gender: c.gender,
         image: c.image, // handy for future UI polish
       }));
 
       acc.push(...page);
       url = json.info.next; // null when last page
+      i++;
     }
-
-    console.info(`Fetched ${acc.length} characters from API`);
     writeCache(acc);
     return acc;
   } catch (err) {
@@ -130,9 +127,9 @@ async function fetchData() {
   }
 }
 
-/* =========================================================
+/* ==========================
    UI layer — list rendering
-   ========================================================= */
+   ========================== */
 
 const listContainer = document.getElementById("list-container");
 let ALL_ITEMS = []; // keeps master dataset for filters / modal
@@ -147,12 +144,13 @@ function fmtDate(iso) {
 }
 
 /** Build one <li> row */
-function rowTemplate({ id, name, created, species }) {
+function rowTemplate({ id, name, created, species, gender }) {
   return `
        <li class="list-row interactive" data-id="${id}">
          <span class="cell name" aria-label="Character name">${name}</span>
          <span class="cell date">${fmtDate(created)}</span>
          <span class="cell species">${species}</span>
+         <span class="cell gender">${gender}</span>
          <button class="btn-more" data-id="${id}"
            aria-label="More info about ${name}">
            More info
@@ -185,14 +183,13 @@ listContainer.addEventListener("click", (e) => {
   try {
     ALL_ITEMS = await fetchData();
     renderList(ALL_ITEMS);
-    console.info("✅ Initial list rendered");
   } catch {
     listContainer.innerHTML = '<p class="empty-state">Failed to load data.</p>';
   }
 })();
 
 /* =========================================================
-   Modal component — show full JSON payload
+   Modal component — full a11y version
    ========================================================= */
 
 const modalRoot = document.getElementById("modal-root");
@@ -202,13 +199,30 @@ let previouslyFocused = null;
 function openModal(item) {
   previouslyFocused = document.activeElement;
 
-  // Build markup once per call (dialog + overlay)
+  const headingId = `dialog-title-${item.id}`;
+
   modalRoot.innerHTML = `
+       <div class="focus-sentinel" tabindex="0" data-sentinel="start"></div>
+   
        <div class="modal-overlay" tabindex="-1"></div>
-       <div class="modal" role="dialog" aria-modal="true" aria-label="Character details">
-         <button class="modal-close" aria-label="Close dialog">&times;</button>
+   
+       <div class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="${headingId}">
+   
+         <button class="modal-close"
+                 aria-label="Close dialog">&times;</button>
+   
+         <h2 id="${headingId}" class="modal-heading">
+           ${item.name}
+         </h2>
+   
          <pre class="modal-json">${JSON.stringify(item, null, 2)}</pre>
-       </div>`;
+       </div>
+   
+       <div class="focus-sentinel" tabindex="0" data-sentinel="end"></div>
+     `;
 
   modalRoot.classList.remove("hidden");
   requestAnimationFrame(() => modalRoot.classList.add("is-visible"));
@@ -216,7 +230,7 @@ function openModal(item) {
   trapFocus();
 }
 
-/** Close + cleanup */
+/** Close + cleanup  */
 function closeModal() {
   modalRoot.classList.remove("is-visible");
   modalRoot.addEventListener(
@@ -224,54 +238,49 @@ function closeModal() {
     () => {
       modalRoot.classList.add("hidden");
       modalRoot.innerHTML = "";
+      releaseFocus();
       if (previouslyFocused) previouslyFocused.focus();
     },
     { once: true }
   );
-  releaseFocus();
 }
 
 /* ---------- Event wiring ---------- */
-//   • overlay click
-//   • close‑button click
-//   • Esc key
 modalRoot.addEventListener("click", (e) => {
   if (
     e.target.classList.contains("modal-overlay") ||
     e.target.classList.contains("modal-close")
-  ) {
+  )
     closeModal();
-  }
 });
 
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !modalRoot.classList.contains("hidden")) {
+  if (e.key === "Escape" && !modalRoot.classList.contains("hidden"))
     closeModal();
-  }
 });
 
-/* ---------- Focus trapping ---------- */
+/* ---------- Sentinel‑based focus trap ---------- */
 function trapFocus() {
-  const focusable = modalRoot.querySelectorAll(
-    'button, [href], textarea, input, select, [tabindex]:not([tabindex="-1"])'
-  );
-  if (!focusable.length) return;
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-
-  function loop(e) {
-    if (e.key !== "Tab") return;
-    if (e.shiftKey ? e.target === first : e.target === last) {
-      e.preventDefault();
-      (e.shiftKey ? last : first).focus();
-    }
-  }
-  modalRoot.addEventListener("keydown", loop);
-  first.focus();
-  modalRoot._loop = loop; // store for removal
+  modalRoot.addEventListener("focusin", loopFocus);
+  // focus first interactive element inside dialog
+  modalRoot.querySelector(".modal").focus();
 }
 
 function releaseFocus() {
-  modalRoot.removeEventListener("keydown", modalRoot._loop || (() => {}));
-  modalRoot._loop = null;
+  modalRoot.removeEventListener("focusin", loopFocus);
+}
+
+function loopFocus(e) {
+  if (!e.target.dataset.sentinel) return;
+
+  const focusables = modalRoot.querySelectorAll(
+    'button, [href], textarea, input, select, pre, [tabindex]:not([tabindex="-1"])'
+  );
+  if (!focusables.length) return;
+
+  // Jump to last or first focusable depending on sentinel
+  (e.target.dataset.sentinel === "start"
+    ? focusables[focusables.length - 1]
+    : focusables[0]
+  ).focus();
 }

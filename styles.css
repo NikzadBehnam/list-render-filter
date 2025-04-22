@@ -217,7 +217,7 @@ select {
 
 .list-row {
   display: grid;
-  grid-template-columns: 1fr 10rem 8rem auto;
+  grid-template-columns: 1fr 10rem 8rem 8rem auto;
   align-items: center;
   gap: var(--space-2);
   background: var(--surface-1);
@@ -309,4 +309,19 @@ select {
 
 #modal-root.is-visible .modal {
   transform: translate(-50%, -50%) scale(1);
+}
+
+/* Dialog heading */
+.modal-heading {
+  margin: 0 0 var(--space-3);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Sentinels are invisible */
+.focus-sentinel {
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  position: fixed; /* avoid affecting layout */
 }
