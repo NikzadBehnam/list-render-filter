@@ -369,11 +369,11 @@ select {
 }
 
 /* ===== Toast for "No Results" message ===== */
+/* ===== Toast for global errors & info messages ===== */
 .toast {
   position: fixed;
   top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 1rem;
   background: var(--accent-500);
   color: white;
   padding: var(--space-2) var(--space-4);
@@ -388,4 +388,14 @@ select {
 .toast.show {
   opacity: 1;
   visibility: visible;
+}
+
+/* Info toast: lighter background */
+.toast.info {
+  background: var(--accent-600); /* Info color for results like 'No results' */
+}
+
+/* Error toast: red background */
+.toast.error {
+  background: #e53e3e; /* Red color for error */
 }

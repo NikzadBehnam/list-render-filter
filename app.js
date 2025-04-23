@@ -81,27 +81,23 @@ function writeCache(data) {
  * @returns {Promise<Array<{id:number,name:string,species:string,created:string}>>}
  */
 async function fetchData() {
-  // 1 ) Serve from cache when available
-  const cached = readCache();
-  if (cached) {
-    console.info("Loaded characters from cache");
-    return cached;
-  }
-
-  // 2 ) Pull fresh data (handles pagination)
   try {
     let url = API_URL;
-    let i = 0;
     const acc = [];
 
-    while (i < 30) {
+    while (url) {
       const res = await fetch(url);
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        showGlobalToast(`Error: HTTP ${res.status}`, "error");
+        throw new Error(`HTTP ${res.status}`);
+      }
 
       const json = await res.json();
+      if (!json.results) {
+        showGlobalToast("Error: Invalid JSON data structure", "error");
+        throw new Error("Invalid JSON structure");
+      }
 
-      //  Data normalization
       const page = json.results.map((c) => ({
         id: c.id,
         name: c.name,
@@ -111,22 +107,20 @@ async function fetchData() {
           new Date(
             Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
           ).toISOString(),
-        gender: c.gender,
-        image: c.image, // handy for future UI polish
       }));
 
       acc.push(...page);
-      url = json.info.next; // null when last page
-      i++;
+      url = json.info.next;
     }
+
     writeCache(acc);
     return acc;
   } catch (err) {
-    console.error("Fetch failed:", err);
-    throw err; // let caller show toast / fallback UI
+    showGlobalToast("Failed to load data, please try again later.", "error");
+    console.error("❌ Fetch failed:", err);
+    throw err; // Let the calling code handle additional failure cases
   }
 }
-
 /* ==========================
    UI layer — list rendering
    ========================== */
@@ -356,24 +350,28 @@ function applyFilters() {
   renderList(filteredItems); // Re-render the filtered results
 
   if (filteredItems.length === 0) {
-    showToast("No results found.");
+    showGlobalToast("No results found.", "info");
   } else {
     hideToast();
   }
-}
-
-/** Show toast message */
-function showToast(message) {
-  const toast = document.createElement("div");
-  toast.classList.add("toast");
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.classList.add("show"), 100);
-  setTimeout(() => toast.remove(), 5000);
 }
 
 /** Hide the toast message */
 function hideToast() {
   const existingToast = document.querySelector(".toast");
   if (existingToast) existingToast.remove();
+}
+
+/* =============================
+   Error Handling + Global Toast
+   ============================= */
+
+/** Show global toast message */
+function showGlobalToast(message, type = "error") {
+  const toast = document.createElement("div");
+  toast.classList.add("toast", type);
+  toast.innerHTML = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.classList.add("show"), 100);
+  setTimeout(() => toast.remove(), 5000);
 }
