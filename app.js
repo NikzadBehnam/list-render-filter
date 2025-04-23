@@ -1,29 +1,29 @@
 const root = document.documentElement;
-const STORAGE_KEY = "theme-preference";
-const btnToggle = document.getElementById("theme-toggle");
-const iconSun = document.getElementById("icon-sun");
+const STORAGE_KEY = 'theme-preference';
+const btnToggle = document.getElementById('theme-toggle');
+const iconSun = document.getElementById('icon-sun');
 
 /* Return 'light' | 'dark' from storage or system */
 function getPreferredTheme() {
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  if (stored === 'light' || stored === 'dark') return stored;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
 }
 
 /* Apply theme by toggling classes on <html> */
 function applyTheme(theme) {
-  root.classList.toggle("theme-dark", theme === "dark");
-  root.classList.toggle("theme-light", theme === "light");
+  root.classList.toggle('theme-dark', theme === 'dark');
+  root.classList.toggle('theme-light', theme === 'light');
 
   // swap icon (simple CSS class flip)
-  btnToggle.classList.toggle("is-dark", theme === "dark");
+  btnToggle.classList.toggle('is-dark', theme === 'dark');
 }
 
 /* Persist and apply user choice */
 function toggleTheme() {
-  const newTheme = root.classList.contains("theme-dark") ? "light" : "dark";
+  const newTheme = root.classList.contains('theme-dark') ? 'light' : 'dark';
 
   localStorage.setItem(STORAGE_KEY, newTheme);
   applyTheme(newTheme);
@@ -33,9 +33,9 @@ function toggleTheme() {
 applyTheme(getPreferredTheme());
 
 // Events
-btnToggle.addEventListener("click", toggleTheme);
-btnToggle.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" || e.key === " ") {
+btnToggle.addEventListener('click', toggleTheme);
+btnToggle.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
     e.preventDefault();
     toggleTheme();
   }
@@ -45,8 +45,8 @@ btnToggle.addEventListener("keydown", (e) => {
    Data layer — Rick & Morty characters
    ===================================== */
 
-const API_URL = "https://rickandmortyapi.com/api/character"; //end point
-const CACHE_KEY = "rm-characters-cache";
+const API_URL = 'https://rickandmortyapi.com/api/character'; //end point
+const CACHE_KEY = 'rm-characters-cache';
 const CACHE_TTL = 1000 * 60 * 60 * 4; // 4 h in ms
 const USE_CACHE = false;
 
@@ -57,7 +57,7 @@ const USE_CACHE = false;
 function readCache() {
   if (!USE_CACHE) return null;
   try {
-    const raw = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+    const raw = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
     if (!raw) return null;
     if (Date.now() - raw.ts > CACHE_TTL) return null; // stale
     return raw.data;
@@ -88,14 +88,14 @@ async function fetchData() {
     while (url) {
       const res = await fetch(url);
       if (!res.ok) {
-        showGlobalToast(`Error: HTTP ${res.status}`, "error");
+        showGlobalToast(`Error: HTTP ${res.status}`, 'error');
         throw new Error(`HTTP ${res.status}`);
       }
 
       const json = await res.json();
       if (!json.results) {
-        showGlobalToast("Error: Invalid JSON data structure", "error");
-        throw new Error("Invalid JSON structure");
+        showGlobalToast('Error: Invalid JSON data structure', 'error');
+        throw new Error('Invalid JSON structure');
       }
 
       const page = json.results.map((c) => ({
@@ -116,8 +116,8 @@ async function fetchData() {
     writeCache(acc);
     return acc;
   } catch (err) {
-    showGlobalToast("Failed to load data, please try again later.", "error");
-    console.error("❌ Fetch failed:", err);
+    showGlobalToast('Failed to load data, please try again later.', 'error');
+    console.error('❌ Fetch failed:', err);
     throw err; // Let the calling code handle additional failure cases
   }
 }
@@ -125,15 +125,15 @@ async function fetchData() {
    UI layer — list rendering
    ========================== */
 
-const listContainer = document.getElementById("list-container");
+const listContainer = document.getElementById('list-container');
 let ALL_ITEMS = []; // keeps master dataset for filters / modal
 
 /** Format ISO to e.g. “Apr 18 2025” (uses user locale) */
 function fmtDate(iso) {
   return new Date(iso).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   });
 }
 
@@ -158,13 +158,13 @@ function renderList(items) {
     return;
   }
 
-  const html = `<ul class="list">${items.map(rowTemplate).join("")}</ul>`;
+  const html = `<ul class="list">${items.map(rowTemplate).join('')}</ul>`;
   listContainer.innerHTML = html;
 }
 
 /** Delegated click → upcoming modal */
-listContainer.addEventListener("click", (e) => {
-  const btn = e.target.closest(".btn-more");
+listContainer.addEventListener('click', (e) => {
+  const btn = e.target.closest('.btn-more');
   if (!btn) return;
   const id = Number(btn.dataset.id);
   const item = ALL_ITEMS.find((c) => c.id === id);
@@ -178,7 +178,7 @@ listContainer.addEventListener("click", (e) => {
     renderList(ALL_ITEMS);
     populationCategories(ALL_ITEMS);
     setupFilters(); // Attach all listeners
-    console.info("Filters are ready");
+    console.info('Filters are ready');
   } catch {
     listContainer.innerHTML = '<p class="empty-state">Failed to load data.</p>';
   }
@@ -188,7 +188,7 @@ listContainer.addEventListener("click", (e) => {
    Modal component — full a11y version
    ========================================================= */
 
-const modalRoot = document.getElementById("modal-root");
+const modalRoot = document.getElementById('modal-root');
 let previouslyFocused = null;
 
 /** Open the modal with a prettified JSON view */
@@ -220,20 +220,20 @@ function openModal(item) {
        <div class="focus-sentinel" tabindex="0" data-sentinel="end"></div>
      `;
 
-  modalRoot.classList.remove("hidden");
-  requestAnimationFrame(() => modalRoot.classList.add("is-visible"));
+  modalRoot.classList.remove('hidden');
+  requestAnimationFrame(() => modalRoot.classList.add('is-visible'));
 
   trapFocus();
 }
 
 /** Close + cleanup  */
 function closeModal() {
-  modalRoot.classList.remove("is-visible");
+  modalRoot.classList.remove('is-visible');
   modalRoot.addEventListener(
-    "transitionend",
+    'transitionend',
     () => {
-      modalRoot.classList.add("hidden");
-      modalRoot.innerHTML = "";
+      modalRoot.classList.add('hidden');
+      modalRoot.innerHTML = '';
       releaseFocus();
       if (previouslyFocused) previouslyFocused.focus();
     },
@@ -242,28 +242,28 @@ function closeModal() {
 }
 
 /* ---------- Event wiring ---------- */
-modalRoot.addEventListener("click", (e) => {
+modalRoot.addEventListener('click', (e) => {
   if (
-    e.target.classList.contains("modal-overlay") ||
-    e.target.classList.contains("modal-close")
+    e.target.classList.contains('modal-overlay') ||
+    e.target.classList.contains('modal-close')
   )
     closeModal();
 });
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !modalRoot.classList.contains("hidden"))
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !modalRoot.classList.contains('hidden'))
     closeModal();
 });
 
 /* ---------- Sentinel‑based focus trap ---------- */
 function trapFocus() {
-  modalRoot.addEventListener("focusin", loopFocus);
+  modalRoot.addEventListener('focusin', loopFocus);
   // focus first interactive element inside dialog
-  modalRoot.querySelector(".modal").focus();
+  modalRoot.querySelector('.modal').focus();
 }
 
 function releaseFocus() {
-  modalRoot.removeEventListener("focusin", loopFocus);
+  modalRoot.removeEventListener('focusin', loopFocus);
 }
 
 function loopFocus(e) {
@@ -275,7 +275,7 @@ function loopFocus(e) {
   if (!focusables.length) return;
 
   // Jump to last or first focusable depending on sentinel
-  (e.target.dataset.sentinel === "start"
+  (e.target.dataset.sentinel === 'start'
     ? focusables[focusables.length - 1]
     : focusables[0]
   ).focus();
@@ -285,10 +285,10 @@ function loopFocus(e) {
    Filters — UI population only 
    ============================= */
 
-const categorySelect = document.getElementById("category");
-const dateFromInput = document.getElementById("date-from");
-const dateToInput = document.getElementById("date-to");
-const keywordInput = document.getElementById("keyword");
+const categorySelect = document.getElementById('category');
+const dateFromInput = document.getElementById('date-from');
+const dateToInput = document.getElementById('date-to');
+const keywordInput = document.getElementById('keyword');
 
 function populationCategories(items) {
   const unique = [
@@ -297,7 +297,7 @@ function populationCategories(items) {
 
   categorySelect.innerHTML =
     '<option value="">All</option>' +
-    unique.map((sp) => `<option value="${sp}">${sp}</option>`).join("");
+    unique.map((sp) => `<option value="${sp}">${sp}</option>`).join('');
 }
 
 /* ===========================
@@ -312,13 +312,13 @@ let filteredItems = [...ALL_ITEMS];
 /* Add all listeners for filter controls */
 function setupFilters() {
   // Date range
-  dateFromInput.addEventListener("change", applyFilters);
-  dateToInput.addEventListener("change", applyFilters);
-  categorySelect.addEventListener("change", applyFilters);
+  dateFromInput.addEventListener('change', applyFilters);
+  dateToInput.addEventListener('change', applyFilters);
+  categorySelect.addEventListener('change', applyFilters);
 
   // Keyword search (with debounce)
 
-  keywordInput.addEventListener("input", () => {
+  keywordInput.addEventListener('input', () => {
     clearTimeout(keywordTimeout);
     keywordTimeout = setTimeout(applyFilters, DEBOUNCE_DELAY);
   });
@@ -350,7 +350,7 @@ function applyFilters() {
   renderList(filteredItems); // Re-render the filtered results
 
   if (filteredItems.length === 0) {
-    showGlobalToast("No results found.", "info");
+    showGlobalToast('No results found.', 'info');
   } else {
     hideToast();
   }
@@ -358,7 +358,7 @@ function applyFilters() {
 
 /** Hide the toast message */
 function hideToast() {
-  const existingToast = document.querySelector(".toast");
+  const existingToast = document.querySelector('.toast');
   if (existingToast) existingToast.remove();
 }
 
@@ -367,11 +367,11 @@ function hideToast() {
    ============================= */
 
 /** Show global toast message */
-function showGlobalToast(message, type = "error") {
-  const toast = document.createElement("div");
-  toast.classList.add("toast", type);
+function showGlobalToast(message, type = 'error') {
+  const toast = document.createElement('div');
+  toast.classList.add('toast', type);
   toast.innerHTML = message;
   document.body.appendChild(toast);
-  setTimeout(() => toast.classList.add("show"), 100);
+  setTimeout(() => toast.classList.add('show'), 100);
   setTimeout(() => toast.remove(), 5000);
 }
