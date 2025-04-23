@@ -149,8 +149,7 @@ function rowTemplate({ id, name, created, species, gender }) {
        <li class="list-row interactive" data-id="${id}">
          <span class="cell name" aria-label="Character name">${name}</span>
          <span class="cell date">${fmtDate(created)}</span>
-         <span class="cell species">${species}</span>
-         <span class="cell gender">${gender}</span>
+         <span class="cell species">${species}</span>         
          <button class="btn-more" data-id="${id}"
            aria-label="More info about ${name}">
            More info
@@ -184,6 +183,8 @@ listContainer.addEventListener("click", (e) => {
     ALL_ITEMS = await fetchData();
     renderList(ALL_ITEMS);
     populationCategories(ALL_ITEMS);
+    setupFilters(); // Attach all listeners
+    console.info("Filters are ready");
   } catch {
     listContainer.innerHTML = '<p class="empty-state">Failed to load data.</p>';
   }
@@ -303,4 +304,76 @@ function populationCategories(items) {
   categorySelect.innerHTML =
     '<option value="">All</option>' +
     unique.map((sp) => `<option value="${sp}">${sp}</option>`).join("");
+}
+
+/* ===========================
+   Filters + debounce + logic
+   =========================== */
+
+const DEBOUNCE_DELAY = 300; //ms debounce for keyword search
+
+let keywordTimeout;
+let filteredItems = [...ALL_ITEMS];
+
+/* Add all listeners for filter controls */
+function setupFilters() {
+  // Date range
+  dateFromInput.addEventListener("change", applyFilters);
+  dateToInput.addEventListener("change", applyFilters);
+  categorySelect.addEventListener("change", applyFilters);
+
+  // Keyword search (with debounce)
+
+  keywordInput.addEventListener("input", () => {
+    clearTimeout(keywordTimeout);
+    keywordTimeout = setTimeout(applyFilters, DEBOUNCE_DELAY);
+  });
+}
+
+/** Apply all active filters (AND logic) */
+function applyFilters() {
+  const keyword = keywordInput.value.toLowerCase();
+  const category = categorySelect.value;
+  const dateFrom = dateFromInput.value ? new Date(dateFromInput.value) : null;
+  const dateTo = dateToInput.value ? new Date(dateToInput.value) : null;
+
+  filteredItems = ALL_ITEMS.filter((item) => {
+    // Keyword filter
+    const matchesKeyword = item.name.toLowerCase().includes(keyword);
+
+    // Category filter
+    const matchesCategory = category ? item.species === category : true;
+
+    // Date filter
+    const createdDate = new Date(item.created);
+    const matchesDateRange =
+      (!dateFrom || createdDate >= dateFrom) &&
+      (!dateTo || createdDate <= dateTo);
+
+    return matchesKeyword && matchesCategory && matchesDateRange;
+  });
+
+  renderList(filteredItems); // Re-render the filtered results
+
+  if (filteredItems.length === 0) {
+    showToast("No results found.");
+  } else {
+    hideToast();
+  }
+}
+
+/** Show toast message */
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.classList.add("toast");
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.classList.add("show"), 100);
+  setTimeout(() => toast.remove(), 5000);
+}
+
+/** Hide the toast message */
+function hideToast() {
+  const existingToast = document.querySelector(".toast");
+  if (existingToast) existingToast.remove();
 }

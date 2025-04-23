@@ -367,3 +367,25 @@ select {
   outline: 2px solid var(--accent-500);
   outline-offset: 0;
 }
+
+/* ===== Toast for "No Results" message ===== */
+.toast {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent-500);
+  color: white;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s;
+  z-index: var(--z-toast);
+}
+
+.toast.show {
+  opacity: 1;
+  visibility: visible;
+}
