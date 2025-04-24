@@ -179,7 +179,7 @@ listContainer.addEventListener('click', (e) => {
   try {
     ALL_ITEMS = await fetchData();
     renderList(ALL_ITEMS);
-    populationCategories(ALL_ITEMS);
+    populationCategoriesAndGenders(ALL_ITEMS);
     setupFilters(); // Attach all listeners
   } catch {
     listContainer.innerHTML = '<p class="empty-state">Failed to load data.</p>';
@@ -288,18 +288,27 @@ function loopFocus(e) {
    ============================= */
 
 const categorySelect = document.getElementById('category');
+const genderSelect = document.getElementById('gender');
 const dateFromInput = document.getElementById('date-from');
 const dateToInput = document.getElementById('date-to');
 const keywordInput = document.getElementById('keyword');
 
-function populationCategories(items) {
-  const unique = [
+function populationCategoriesAndGenders(items) {
+  const uniqueCategory = [
     ...new Set(items.map((c) => c.species).filter(Boolean)),
+  ].sort();
+
+  const uniqueGender = [
+    ...new Set(items.map((c) => c.gender).filter(Boolean)),
   ].sort();
 
   categorySelect.innerHTML =
     '<option value="">All</option>' +
-    unique.map((sp) => `<option value="${sp}">${sp}</option>`).join('');
+    uniqueCategory.map((sp) => `<option value="${sp}">${sp}</option>`).join('');
+
+  genderSelect.innerHTML =
+    '<option value="">All</option>' +
+    uniqueGender.map((sp) => `<option value="${sp}">${sp}</option>`).join('');
 }
 
 /* ===========================
@@ -317,6 +326,7 @@ function setupFilters() {
   dateFromInput.addEventListener('change', applyFilters);
   dateToInput.addEventListener('change', applyFilters);
   categorySelect.addEventListener('change', applyFilters);
+  genderSelect.addEventListener('change', applyFilters);
 
   // Keyword search (with debounce)
 
@@ -330,6 +340,7 @@ function setupFilters() {
 function applyFilters() {
   const keyword = keywordInput.value.toLowerCase();
   const category = categorySelect.value;
+  const gender = genderSelect.value;
   const dateFrom = dateFromInput.value ? new Date(dateFromInput.value) : null;
   const dateTo = dateToInput.value ? new Date(dateToInput.value) : null;
 
@@ -339,6 +350,7 @@ function applyFilters() {
 
     // Category filter
     const matchesCategory = category ? item.species === category : true;
+    const matchesGender = gender ? item.gender === gender : true;
 
     // Date filter
     const createdDate = new Date(item.created);
@@ -346,7 +358,9 @@ function applyFilters() {
       (!dateFrom || createdDate >= dateFrom) &&
       (!dateTo || createdDate <= dateTo);
 
-    return matchesKeyword && matchesCategory && matchesDateRange;
+    return (
+      matchesKeyword && matchesCategory && matchesDateRange && matchesGender
+    );
   });
 
   renderList(filteredItems); // Re-render the filtered results
