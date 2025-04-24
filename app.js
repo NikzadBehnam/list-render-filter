@@ -1,7 +1,6 @@
 const root = document.documentElement;
 const STORAGE_KEY = 'theme-preference';
 const btnToggle = document.getElementById('theme-toggle');
-const iconSun = document.getElementById('icon-sun');
 
 /* Return 'light' | 'dark' from storage or system */
 function getPreferredTheme() {
@@ -102,6 +101,8 @@ async function fetchData() {
         id: c.id,
         name: c.name,
         species: c.species,
+        gender: c.gender,
+        image: c.image,
         created:
           c.created ||
           new Date(
@@ -138,17 +139,19 @@ function fmtDate(iso) {
 }
 
 /** Build one <li> row */
-function rowTemplate({ id, name, created, species, gender }) {
-  return `
-       <li class="list-row interactive" data-id="${id}">
-         <span class="cell name" aria-label="Character name">${name}</span>
-         <span class="cell date">${fmtDate(created)}</span>
-         <span class="cell species">${species}</span>         
-         <button class="btn-more" data-id="${id}"
-           aria-label="More info about ${name}">
-           More info
-         </button>
-       </li>`;
+function rowTemplate({ id, name, created, species, gender, image }) {
+  return `  
+      <div class="list-row interactive" data-id="${id}">     
+        <div class="list-row-image">
+         <img cell image src="${image}" alt="${name}">
+        </div>
+        <div class="list-row-detail" >        
+        <span class="cell name" aria-label="Character name">${name}</span>
+          <span class="cell date">${fmtDate(created)}</span>             
+          <span class="cell gender">${gender}</span>                
+        </div>
+      </div>
+       `;
 }
 
 /** Render (or re‑render) the list */
@@ -158,15 +161,15 @@ function renderList(items) {
     return;
   }
 
-  const html = `<ul class="list">${items.map(rowTemplate).join('')}</ul>`;
+  const html = `<div class="list">${items.map(rowTemplate).join('')}</div>`;
   listContainer.innerHTML = html;
 }
 
 /** Delegated click → upcoming modal */
 listContainer.addEventListener('click', (e) => {
-  const btn = e.target.closest('.btn-more');
-  if (!btn) return;
-  const id = Number(btn.dataset.id);
+  const listRow = e.target.closest('.list-row');
+  if (!listRow) return;
+  const id = Number(listRow.dataset.id);
   const item = ALL_ITEMS.find((c) => c.id === id);
   if (item) openModal(item);
 });
@@ -178,15 +181,14 @@ listContainer.addEventListener('click', (e) => {
     renderList(ALL_ITEMS);
     populationCategories(ALL_ITEMS);
     setupFilters(); // Attach all listeners
-    console.info('Filters are ready');
   } catch {
     listContainer.innerHTML = '<p class="empty-state">Failed to load data.</p>';
   }
 })();
 
-/* =========================================================
+/* ====================================
    Modal component — full a11y version
-   ========================================================= */
+   ==================================== */
 
 const modalRoot = document.getElementById('modal-root');
 let previouslyFocused = null;

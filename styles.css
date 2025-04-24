@@ -80,6 +80,7 @@ html,
 body {
   margin: 0;
   padding: 0;
+  overflow-y: hidden;
 }
 
 body {
@@ -131,7 +132,7 @@ button {
 }
 
 img,
-svg {
+.icon {
   display: block;
   max-width: 100%;
 }
@@ -161,20 +162,29 @@ svg {
   transform: rotate(20deg);
 }
 
-.toggle svg {
+.toggle .icon {
   width: 1.25rem;
   height: 1.25rem;
 }
 
-.toggle.is-dark svg {
+.toggle.is-dark .icon {
   /* rotate 180° so the moon icon aligns naturally */
   transform: rotate(180deg);
 }
 
 @media (prefers-color-scheme: dark) {
-  .theme-dark .toggle svg {
+  .theme-dark .toggle .icon {
     filter: invert(1);
   }
+}
+
+/* ===== Header ===== */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 5rem;
+  padding: var(--space-3);
 }
 
 /* ===== Results list ===== */
@@ -182,9 +192,12 @@ svg {
   height: calc(100vh - 14rem); /* leaves room for header & filters */
   overflow-y: auto;
   padding: var(--space-3);
-  display: grid;
-  gap: var(--space-2);
+  display: flex;
+  flex-direction: column;
   scroll-behavior: smooth;
+}
+.list-container::-webkit-scrollbar {
+  display: none;
 }
 
 .list-container:focus-visible {
@@ -212,27 +225,60 @@ select {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
+  display: flex;
+  flex-wrap: wrap; /* Allow the items to wrap */
   gap: var(--space-2);
+  justify-content: space-around;
+  align-items: center;
 }
 
 .list-row {
-  display: grid;
-  grid-template-columns: 1fr 10rem 8rem 8rem auto;
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: space-between;
   background: var(--surface-1);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
+  height: 15rem;
+  padding: var(--space-1);
+  width: 30rem;
+  box-sizing: border-box;
 }
 
+.list-row:hover {
+  background-color: var(--accent-500);
+}
+.list-row-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+  background: var(--surface-1);
+  padding: var(--space-2);
+  height: 100%;
+  width: 100%;
+}
+.list-row-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-1);
+  height: 100%;
+  width: 100%;
+}
 .cell.name {
   font-weight: 500;
+  font-size: 1.5rem;
 }
 .cell.date,
-.cell.species {
+.cell.species,
+.cell.gender {
   color: var(--text-2);
   font-size: 0.875rem;
+}
+.cell.image {
+  width: 100%;
+  height: 100%;
 }
 
 .btn-more {
