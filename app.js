@@ -102,7 +102,9 @@ async function fetchData() {
         name: c.name,
         species: c.species,
         gender: c.gender,
+        location: { name: c.location.name, url: c.location.url },
         image: c.image,
+        status: c.status.toLowerCase(),
         created:
           c.created ||
           new Date(
@@ -139,14 +141,14 @@ function fmtDate(iso) {
 }
 
 /** Build one <li> row */
-function rowTemplate({ id, name, created, species, gender, image }) {
+function rowTemplate({ id, name, created, species, gender, image, status }) {
   return `  
-      <div class="list-row interactive" data-id="${id}">     
-        <div class="list-row-image">
-         <img cell image src="${image}" alt="${name}">
-        </div>
-        <div class="list-row-detail" >        
-        <span class="cell name" aria-label="Character name">${name}</span>
+      <div class="list-row interactive" data-id="${id}">
+         <img class="cell image" src="${image}" alt="${name}">        
+         <div class="list-row-detail" >        
+         <span class="cell status ${status === 'alive' ? 'status-alive' : 'status-dead'}"></span>             
+          <span class="cell name" aria-label="Character name">${name}</span>
+          <span class="cell species" aria-label="Character name">${species}</span>
           <span class="cell date">${fmtDate(created)}</span>             
           <span class="cell gender">${gender}</span>                
         </div>
@@ -292,6 +294,8 @@ const genderSelect = document.getElementById('gender');
 const dateFromInput = document.getElementById('date-from');
 const dateToInput = document.getElementById('date-to');
 const keywordInput = document.getElementById('keyword');
+const statusAlive = document.getElementById('status-alive');
+const statusDead = document.getElementById('status-dead');
 
 function populationCategoriesAndGenders(items) {
   const uniqueCategory = [
@@ -303,11 +307,11 @@ function populationCategoriesAndGenders(items) {
   ].sort();
 
   categorySelect.innerHTML =
-    '<option value="">All</option>' +
+    '<option value="">All categories</option>' +
     uniqueCategory.map((sp) => `<option value="${sp}">${sp}</option>`).join('');
 
   genderSelect.innerHTML =
-    '<option value="">All</option>' +
+    '<option value="">All genders</option>' +
     uniqueGender.map((sp) => `<option value="${sp}">${sp}</option>`).join('');
 }
 
@@ -328,6 +332,10 @@ function setupFilters() {
   categorySelect.addEventListener('change', applyFilters);
   genderSelect.addEventListener('change', applyFilters);
 
+  // Status filters
+  statusAlive.addEventListener('click', applyFilters);
+  statusDead.addEventListener('click', applyFilters);
+
   // Keyword search (with debounce)
 
   keywordInput.addEventListener('input', () => {
@@ -337,14 +345,18 @@ function setupFilters() {
 }
 
 /** Apply all active filters (AND logic) */
-function applyFilters() {
+function applyFilters(e) {
   const keyword = keywordInput.value.toLowerCase();
   const category = categorySelect.value;
   const gender = genderSelect.value;
   const dateFrom = dateFromInput.value ? new Date(dateFromInput.value) : null;
   const dateTo = dateToInput.value ? new Date(dateToInput.value) : null;
+  const statusDead = e.target.id === 'status-dead' ? true : false;
+  const statusAlive = e.target.id === 'status-alive' ? true : false;
 
   filteredItems = ALL_ITEMS.filter((item) => {
+    // Status filter
+
     // Keyword filter
     const matchesKeyword = item.name.toLowerCase().includes(keyword);
 

@@ -229,19 +229,17 @@ select {
   flex-wrap: wrap; /* Allow the items to wrap */
   gap: var(--space-2);
   justify-content: space-around;
-  align-items: center;
+  align-items: start;
 }
 
 .list-row {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface-1);
-  height: 15rem;
-  padding: var(--space-1);
+
+  justify-content: center;
   width: 30rem;
-  box-sizing: border-box;
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
+  height: 15rem;
 }
 
 .list-row:hover {
@@ -256,6 +254,7 @@ select {
   padding: var(--space-2);
   height: 100%;
   width: 100%;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 .list-row-image {
   display: flex;
@@ -265,6 +264,7 @@ select {
   background: var(--surface-1);
   height: 100%;
   width: 100%;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
 }
 .cell.name {
   font-weight: 500;
@@ -276,15 +276,33 @@ select {
   color: var(--text-2);
   font-size: 0.875rem;
 }
+
+.cell.status {
+  height: 0.8rem;
+  width: 0.8rem;
+  border-radius: 100%;
+}
+.filter-group .status-filter .status-alive:hover {
+  background: var(--surface-1);
+}
+.filter-group .status-filter .status-dead:hover {
+  background: var(--surface-1);
+}
+.cell.status.status-alive {
+  background-color: rgb(9, 255, 9);
+  box-shadow: 0px 0px 15px rgba(9, 255, 9, 1);
+}
+
+.cell.status.status-dead {
+  box-shadow: 0px 0px 15px rgb(255, 0, 0);
+  background-color: rgb(255, 0, 0);
+}
+
 .cell.image {
   width: 100%;
   height: 100%;
-}
-
-.btn-more {
-  background: var(--accent-500);
-  color: #fff;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  object-fit: cover;
 }
 
 .btn-more:hover,
@@ -394,6 +412,21 @@ select {
   flex-direction: column;
   gap: var(--space-1);
   min-width: 10rem;
+  margin: 0.5rem;
+}
+
+.filter-group .status-filter {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  height: var(--space-5);
+  align-items: center;
+  justify-content: center;
+  max-width: 4rem;
+  padding: var(--space-2);
+  border: 1px solid var(--surface-2);
+  background: var(--surface-0);
+  border-radius: var(--radius-sm);
 }
 
 .filters label {
@@ -404,19 +437,19 @@ select {
 .filters input,
 .filters select {
   padding: var(--space-2);
-  border-radius: var(--radius-sm);
   border: 1px solid var(--surface-2);
   background: var(--surface-0);
   color: var(--text-1);
+  height: var(--space-5);
+  border-radius: var(--radius-sm);
 }
 
 .filters input:focus-visible,
 .filters select:focus-visible {
-  outline: 2px solid var(--accent-500);
+  outline: 1px solid var(--accent-500);
   outline-offset: 0;
 }
 
-/* ===== Toast for "No Results" message ===== */
 /* ===== Toast for global errors & info messages ===== */
 .toast {
   position: fixed;
